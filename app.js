@@ -1,17 +1,34 @@
+// 地図作成
 const map = L.map('map').setView([40.2, 140.4], 9);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
 .addTo(map);
 
+// 列車アイコン（通常）
+const trainIcon = L.divIcon({
+  html: "🚃",
+  className: "",
+  iconSize: [20, 20]
+});
+
+// 停車中アイコン（大きめ）
+const stopIcon = L.divIcon({
+  html: "🚃",
+  className: "",
+  iconSize: [32, 32]
+});
+
+// 時刻を分に変換
+function toMinutes(time) {
+  const parts = time.split(":");
+  return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+}
+
+// 現在位置計算
 function getCurrentPosition(schedule) {
 
   const now = new Date();
   const current = now.getHours() * 60 + now.getMinutes();
-
-  function toMinutes(time) {
-    const parts = time.split(":");
-    return parseInt(parts[0]) * 60 + parseInt(parts[1]);
-  }
 
   for (let i = 0; i < schedule.length; i++) {
 
@@ -59,3 +76,36 @@ function getCurrentPosition(schedule) {
 
   return null;
 }
+
+// ★ これが drawTrains 関数です
+function drawTrains() {
+
+  const infoBox = document.getElementById("info");
+  infoBox.innerHTML = "";
+
+  trains.forEach(train => {
+
+    const pos = getCurrentPosition(train.schedule);
+
+    if (pos) {
+
+      const icon = pos.status === "stop" ? stopIcon : trainIcon;
+
+      L.marker([pos.lat, pos.lng], { icon: icon })
+        .addTo(map)
+        .bindPopup(train.id);
+
+      if (pos.status === "stop") {
+        infoBox.innerHTML += `${train.id}：${pos.station} 停車中<br>`;
+      } else {
+        infoBox.innerHTML += `${train.id}：${pos.station} 行き<br>`;
+      }
+    }
+  });
+}
+
+// 初回実行
+drawTrains();
+
+// 1分ごと更新
+setInterval(() => location.reload(), 60000);
