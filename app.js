@@ -107,5 +107,43 @@ function drawTrains() {
 // 初回実行
 drawTrains();
 
-// 1分ごと更新
-setInterval(() => location.reload(), 60000);
+let trainMarkers = [];
+
+function drawTrains() {
+
+  // 既存マーカー削除
+  trainMarkers.forEach(marker => map.removeLayer(marker));
+  trainMarkers = [];
+
+  const infoBox = document.getElementById("info");
+  infoBox.innerHTML = "";
+
+  trains.forEach(train => {
+
+    const pos = getCurrentPosition(train.schedule);
+
+    if (pos) {
+
+      const icon = pos.status === "stop" ? stopIcon : trainIcon;
+
+      const marker = L.marker([pos.lat, pos.lng], { icon: icon })
+        .addTo(map)
+        .bindPopup(train.id);
+
+      trainMarkers.push(marker);
+
+      if (pos.status === "stop") {
+        infoBox.innerHTML += `${train.id}：${pos.station} 停車中<br>`;
+      } else {
+        infoBox.innerHTML += `${train.id}：${pos.station} 行き<br>`;
+      }
+    }
+  });
+}
+
+// 初回実行
+drawTrains();
+
+// 10秒ごと更新（リアルタイム風）
+setInterval(drawTrains, 10000);
+
