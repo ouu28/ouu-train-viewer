@@ -148,7 +148,3 @@ drawTrains();
 // 10秒ごと更新（リアルタイム風）
 setInterval(drawTrains, 10000);
 
-L.circleMarker([40.8222, 140.7474], {
-  radius: 8
-}).addTo(map);
-
