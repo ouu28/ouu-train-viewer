@@ -17,18 +17,22 @@ function getCurrentPosition(schedule) {
 
     const station = schedule[i];
 
-    // 到着時間がある場合（停車中判定）
+    // 停車中判定
     if (station.arr) {
       const arrTime = toMinutes(station.arr);
       const depTime = station.dep ? toMinutes(station.dep) : arrTime;
 
       if (current >= arrTime && current <= depTime) {
-        // 駅で停車中
-        return { lat: station.lat, lng: station.lng };
+        return {
+          lat: station.lat,
+          lng: station.lng,
+          status: "stop",
+          station: station.name
+        };
       }
     }
 
-    // 次駅との間を移動中
+    // 駅間移動
     if (i < schedule.length - 1) {
 
       const currentDep = schedule[i].dep
@@ -45,7 +49,9 @@ function getCurrentPosition(schedule) {
           lat: schedule[i].lat +
                (schedule[i + 1].lat - schedule[i].lat) * ratio,
           lng: schedule[i].lng +
-               (schedule[i + 1].lng - schedule[i].lng) * ratio
+               (schedule[i + 1].lng - schedule[i].lng) * ratio,
+          status: "move",
+          station: schedule[i + 1].name
         };
       }
     }
