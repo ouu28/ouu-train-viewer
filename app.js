@@ -1,3 +1,6 @@
+console.log("app.js 読み込みOK");
+
+
 // 地図作成
 const map = L.map('map').setView([40.2, 140.4], 9);
 
